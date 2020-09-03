@@ -1,0 +1,38 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:CreateAccessKey",
+          "iam:DeleteAccessKey",
+          "iam:DeleteUser",
+          "iam:ListAccessKeys",
+          "iam:ListAttachedUserPolicies",
+          "iam:ListGroupsForUser",
+          "iam:ListUserPolicies",
+          "iam:AddUserToGroup",
+          "iam:RemoveUserFromGroup"
+        ],
+        "Resource": ["arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:user/vault-*"]
+      },
+      {
+        "Effect": "Allow",
+        "Action": [
+          "iam:AttachUserPolicy",
+          "iam:CreateUser",
+          "iam:DeleteUserPolicy",
+          "iam:DetachUserPolicy",
+          "iam:PutUserPolicy"
+        ],
+        "Resource": ["arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:user/vault-*"],
+        "Condition": {
+          "StringEquals": {
+            "iam:PermissionsBoundary": [
+              "arn:aws:iam::ACCOUNT-ID-WITHOUT-HYPHENS:policy/PolicyName"
+            ]
+          }
+        }
+      }
+    ]
+  }
