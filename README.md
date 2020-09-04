@@ -92,3 +92,62 @@ $ vault
 ##### Pesquisar
 - vault auth enable approle
   
+
+
+
+  {
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "ec2:DescribeInstances",
+        "iam:GetInstanceProfile",
+        "iam:GetUser",
+        "iam:GetRole"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Effect": "Allow",
+      "Action": ["sts:AssumeRole"],
+      "Resource": ["arn:aws:iam::<AccountId>:role/<VaultRole>"]
+    }
+  ]
+}
+
+
+## Polices Vault Commands
+
+vault policy write policy_name policy_file 
+vault policy list
+vault auth list -detailed
+vault policy read policy_name
+
+
+## Create Entity
+
+vault write identity/entity name="bob-smith" policies="base" \
+        metadata=organization="ACME Inc." \
+        metadata=team="QA"
+
+vault write identity/entity-alias name="bob" \
+        canonical_id=9d02bbc8-cb96-d201-f656-e8960c363311 \
+        mount_accessor=auth_userpass_95aa918c
+
+vault write identity/entity-alias name="bob" \
+        canonical_id="631256b1-8523-9838-5501-d0a1e2cdad9c" \
+        mount_accessor=$(cat accessor.txt)
+
+ vault write identity/entity-alias name="bsmith" \
+        canonical_id="9d02bbc8-cb96-d201-f656-e8960c363311" \
+        mount_accessor=$(cat accessor.txt)
+
+
+vault write identity/group-alias name="training" \
+        mount_accessor=$(cat accessor.txt) \
+        canonical_id="7d5821f2-0757-a6e1-96ba-6d377e35ae01"
+
+vault auth list -format=json | jq -r '.["userpass/"].accessor' > accessor.txt
+
+vault read identity/entity/id/bob-smith
