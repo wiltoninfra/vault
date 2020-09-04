@@ -1,0 +1,35 @@
+  
+- name: Playbook Configurar Docker no Ubuntu Server
+  gather_facts: false
+  remote_user: root
+  hosts: all
+
+  tasks:
+    - include_vars: vars.yml
+
+    - name: Download Vault SSH Helper
+      get_url:
+        url: https://releases.hashicorp.com/vault-ssh-helper/{{vault_helper}}/vault-ssh-helper_{{vault_helper}}_linux_amd64.zip
+        dest: /srv
+        mode: '0777'
+
+
+    - name: Unzip Vault SSH Helper
+      unarchive:
+        src: /srv/vault-ssh-helper_{{vault_helper}}_linux_amd64.zip
+        dest: /usr/local/bin
+        remote_src: True      
+
+    - name: Permission Vault SSH Helper
+      file:
+        path: /usr/local/bin/vault-ssh-helper
+        owner: root
+        group: root
+        mode: '1777'
+
+    - name: Create a directory config Vault SSH Helper
+      file:
+        path: /etc/vault-ssh-helper.d
+        state: directory
+        mode: '0755'    
+

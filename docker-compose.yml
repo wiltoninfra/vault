@@ -1,0 +1,17 @@
+version: '3.7'
+services:
+  ansible-dev:
+      image: wilton/ansible-ci:2.9
+      container_name: ansible-dev
+      #restart: always
+      #volumes:
+      #  - ./Ansible:/srv
+        #- ./data/prometheus/data:/var/lib/prometheus
+      networks:
+        - frontend
+
+
+networks:
+  frontend:
+    external: true
+

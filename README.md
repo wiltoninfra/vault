@@ -47,8 +47,8 @@ vault secrets enable -path=name-path kv
 ## Create AWS Config
 
 vault write aws/config/root \
-access_key=AKIATQP34VIZC54AQSV3 \
-secret_key=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 \
+access_key=ACCESS_KEY_HERE \
+secret_key=SECRET_KEY_HERE \
 region=us-east-1  
 
 ## Include police 
