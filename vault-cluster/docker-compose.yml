@@ -1,0 +1,88 @@
+version: '2'
+networks:
+  vault-net:
+    driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.42.0.0/16
+          ip_range: 172.42.10.0/24
+          gateway: 172.42.10.254
+
+services:
+  consul1:
+    image: consul
+    command: agent -server -bootstrap-expect 3 -bind 172.42.10.1
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.1
+
+  consul2:
+    image: consul
+    command: agent -server -retry-join 172.42.10.1 -bind 172.42.10.2
+    depends_on:
+      - consul1
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.2
+
+  consul3:
+    image: consul
+    command: agent -server -retry-join 172.42.10.1 -bind 172.42.10.3
+    depends_on:
+      - consul2
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.3
+
+  client1:
+    image: consul
+    command: agent -client=0.0.0.0 -ui -retry-join 172.42.10.1 -bind 172.42.10.10
+    depends_on:
+      - consul3
+    ports:
+      - "18500:8500"
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.10
+
+  client2:
+    image: consul
+    command: agent -client=0.0.0.0 -ui -retry-join 172.42.10.1 -bind 172.42.10.11
+    depends_on:
+      - consul3
+    ports:
+      - "18501:8500"
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.11
+
+  vault1:
+    image: vault
+    ports:
+      - "8200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault1:/vault/config
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.5
+    depends_on:
+      - client1
+    command: server
+
+  vault2:
+    image: vault
+    ports:
+      - "9200:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - ./vault2:/vault/config
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.6
+    depends_on:
+      - client2
+    command: server

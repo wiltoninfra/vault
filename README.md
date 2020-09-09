@@ -15,7 +15,7 @@ Utilize o Token com a chave root para passar nas suas consultas via API e habili
 
 ```ssh
 $ docker exec -ti vault-dev sh
-# export VAULT_TOKEN="TOKEN_ROOT_HERE"
+# export VAULT_TOKEN="s.u0bB6zokRhZdpOh2iFDaIgeV"
 # export VAULT_ADDR='http://0.0.0.0:8200'
 ```
 Agora acesse o console via http
@@ -31,12 +31,7 @@ curl \
 https://vault.hashicorp.rocks/v1/sys/policy/policy-name
 
 ```
-
-
-
-  
-
-  
+ 
 
 ## comands Vault
 
@@ -151,3 +146,14 @@ vault write identity/group-alias name="training" \
 vault auth list -format=json | jq -r '.["userpass/"].accessor' > accessor.txt
 
 vault read identity/entity/id/bob-smith
+
+
+## Vault Cluster
+
+```
+docker-compose up -d
+export VAULT_ADDR='http://127.0.0.1:8200'
+vault init --key-shares=1 --key-threshold=1
+vault unseal <unseal_key_1>
+vault auth <initial_root_token>
+```
