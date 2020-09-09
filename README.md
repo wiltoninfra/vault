@@ -87,9 +87,6 @@ $ vault
 ##### Pesquisar
 - vault auth enable approle
   
-
-
-
   {
   "Version": "2012-10-17",
   "Statement": [
@@ -157,3 +154,11 @@ vault init --key-shares=1 --key-threshold=1
 vault unseal <unseal_key_1>
 vault auth <initial_root_token>
 ```
+
+## Paths
+
+vault path-help secret
+
+vault path-help sys
+
+
