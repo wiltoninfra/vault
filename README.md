@@ -230,4 +230,4 @@ auth_userpass_bda6eaff
 
 vault kv put secret/envs-qa/sv_myappp APP_NAME=myapp
 
-vault kv put secret/test owner="bob"
+vault kv put env-qa/myapp1 APP_NAME="bob"

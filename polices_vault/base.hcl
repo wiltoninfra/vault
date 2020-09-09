@@ -1,3 +1,3 @@
-path "secret/data/devinfra_*" {
+path "secret/envs-qa/sv_*" {
    capabilities = ["create", "read"]
 }
