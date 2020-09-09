@@ -15,7 +15,7 @@ Utilize o Token com a chave root para passar nas suas consultas via API e habili
 
 ```ssh
 $ docker exec -ti vault-dev sh
-# export VAULT_TOKEN="s.u0bB6zokRhZdpOh2iFDaIgeV"
+# export VAULT_TOKEN="s.zCI5ZL1xjifUJvCb9FoA6XOr"
 # export VAULT_ADDR='http://0.0.0.0:8200'
 ```
 Agora acesse o console via http
@@ -40,17 +40,52 @@ https://vault.hashicorp.rocks/v1/sys/policy/policy-name
 vault secrets enable -path=name-path kv
 
 ## Create AWS Config
+vault secrets enable -path=aws aws
 
 vault write aws/config/root \
-access_key=ACCESS_KEY_HERE \
-secret_key=SECRET_KEY_HERE \
+access_key="AKIATQP34VIZIKOM4LNL" \
+secret_key="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" \
 region=us-east-1  
 
 ## Include police 
 
+
+-<<EOF\
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Action": "sts:AssumeRole",
+      "Principal": {
+        "Service": "lambda.amazonaws.com"
+      },
+      "Effect": "Allow",
+      "Sid": ""
+    }
+  ]
+}
+EOF
+
+
 vault write aws/roles/ec2 \
 credential_type=iam_user \
-policy_document=-<<EOF
+policy_document=-<<EOF\
+		{
+		"Version": "2012-10-17",
+		"Statement": [
+		{
+	"Effect": "Allow",
+	"Action": "ec2:*",
+	"Resource": "*"
+		}
+	]
+}
+
+EOF        
+
+vault write aws/roles/ec2 \
+credential_type=iam_user \
+policy_document=-<<EOF\
 		{
 		"Version": "2012-10-17",
 		"Statement": [
@@ -117,6 +152,17 @@ vault auth list -detailed
 vault policy read policy_name
 
 
+vault write auth/userpass/users/wilton password="123456" policies="devops"
+vault auth list -format=json | jq -r '.["userpass/"].accessor' > accessor.txt
+
+vault write identity/entity name="wilton" policies="devops" \
+        metadata=organization="DEVINFRA BR." \
+        metadata=team="DevOps"
+
+vault login -method=userpass username=wilton password=123456
+
+auth_userpass_b12ff462
+
 ## Create Entity
 
 vault write identity/entity name="bob-smith" policies="base" \
@@ -161,4 +207,27 @@ vault path-help secret
 
 vault path-help sys
 
+export VAULT_TOKEN="s.gPOGbY67AVFluy6MHTAlRdwZ"
 
+Enable Auth Github
+
+
+vault login -method=github token=
+
+curl \
+    --request POST \
+    --data '{"token": "s.dqpECbkYGSYrnMm5IZ3uwokC"}' \
+    http://127.0.0.1:8200/v1/auth/github/login
+
+
+    vault write auth/github/config organization=devinfrabr
+    vault write auth/github/map/teams/dev value=dev-policy
+
+
+auth_userpass_bda6eaff
+
+
+
+vault kv put secret/envs-qa/sv_myappp APP_NAME=myapp
+
+vault kv put secret/test owner="bob"
