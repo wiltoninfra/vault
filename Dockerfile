@@ -6,13 +6,8 @@ LABEL NAME="vault"
 LABEL version=1.5.3
 
 ## 
-RUN apk --update --no-cache add ca-certificates openssl curl && \
-    && python \
-    && python-dev \
-    && py-pip \
-    && build-base \
-    && && pip install awscli==$AWSCLI_VERSION --upgrade --user \
-    && apk --purge -v del py-pip \
+RUN apk update && apk add ca-certificates jq vim openssl curl aws-cli gcc  python3 py-pip python3-dev \
+    && pip install hvac vault-cli \
     && rm -rf /var/cache/apk/* \
     && wget -qO /tmp/vault.zip "https://releases.hashicorp.com/vault/${VAULT_VERSION}/vault_${VAULT_VERSION}_linux_amd64.zip" \
     && unzip -d /bin /tmp/vault.zip \
