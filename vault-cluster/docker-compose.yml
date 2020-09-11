@@ -207,6 +207,24 @@ services:
       vault-net:
         ipv4_address: 172.42.10.60
 
+## Clients
+  api:
+    image: wilton/python:3.9
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    hostname: api
+    container_name: api
+    volumes:
+      - ./api:/app
+    #command:
+    #  - python3 manage.py runserver  
+    ports:
+      - "8000:8000"
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.51
+
 volumes:
      cert-store:
 #    prometheus_data:

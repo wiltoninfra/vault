@@ -4,9 +4,4 @@ tls_skip_verify = false
 allowed_roles = "*"
 
 
-vault_addr = "<VAULT_ADDRESS>"
-tls_skip_verify = false
-ca_cert = "<PEM_ENCODED_CA_CERT>"
-ssh_mount_point = "ssh"
-namespace = "my_namespace"
-allowed_roles = "*"
+
