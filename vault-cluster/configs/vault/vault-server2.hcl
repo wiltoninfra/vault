@@ -2,15 +2,23 @@ backend "consul" {
   address = "172.42.10.11:8500"
   redirect_addr = "http://172.42.10.6:8200"
   scheme = "http"
-  tls_skip_verify = 1
+  tls_skip_verify = 0
 }
 
 ui = true
 
 listener "tcp" {
   address = "172.42.10.6:8200"
-  tls_disable = 1
+  tls_cert_file = "/certs/server-cert.pem"
+  tls_key_file = "/certs/server-key.pem"
+  tls_disable = 0
 }
+
+#listener "tcp" {
+#  tls_cert_file = "/certs/server.crt.pem"
+#  tls_key_file  = "/certs/server.key.pem"
+#}
+
 
 telemetry {
   prometheus_retention_time = "30s",

@@ -12,16 +12,22 @@ networks:
 services:
   consult-srv1:
     hostname: consult-srv1
+    container_name: consult-srv1
     image: consul
     command: agent -server -bootstrap-expect 3 -bind 172.42.10.1
+    volumes:
+      - ./cert-store:/certs
     networks:
       vault-net:
         ipv4_address: 172.42.10.1
 
   consult-srv2:
     hostname: consult-srv2
+    container_name: consult-srv2
     image: consul
     command: agent -server -retry-join 172.42.10.1 -bind 172.42.10.2
+    volumes:
+      - ./cert-store:/certs    
     depends_on:
       - consult-srv1
     networks:
@@ -30,8 +36,11 @@ services:
 
   consult-srv3:
     hostname: consult-srv3
+    container_name: consult-srv3
     image: consul
     command: agent -server -retry-join 172.42.10.1 -bind 172.42.10.3
+    volumes:
+      - ./cert-store:/certs    
     depends_on:
       - consult-srv2
     networks:
@@ -40,8 +49,11 @@ services:
 
   consult-client1:
     hostname: consult-client1
+    container_name: consult-client1
     image: consul
     command: agent -client=0.0.0.0 -ui -retry-join 172.42.10.1 -bind 172.42.10.10
+    volumes:
+      - ./cert-store:/certs    
     depends_on:
       - consult-srv3
     ports:
@@ -52,8 +64,11 @@ services:
 
   consult-client2:
     hostname: consult-client2
+    container_name: consult-client2
     image: consul
     command: agent -client=0.0.0.0 -ui -retry-join 172.42.10.1 -bind 172.42.10.11
+    volumes:
+      - ./cert-store:/certs    
     depends_on:
       - consult-srv3
     ports:
@@ -64,13 +79,16 @@ services:
 
   vault1:
     hostname: vault-server1
+    container_name: vault-server1
     image: vault
     ports:
       - "8200:8200"
+      - "8201:8201"
     cap_add:
       - IPC_LOCK
     volumes:
       - ./configs/vault/vault-server1.hcl:/vault/config/local.hcl
+      - ./cert-store:/certs      
     networks:
       vault-net:
         ipv4_address: 172.42.10.5
@@ -80,13 +98,16 @@ services:
 
   vault2:
     hostname: vault-server2
+    container_name: vault-server2
     image: vault
     ports:
       - "9200:8200"
+      - "9201:8201"
     cap_add:
       - IPC_LOCK
     volumes:
       - ./configs/vault/vault-server2.hcl:/vault/config/local.hcl
+      - ./cert-store:/certs 
     networks:
       vault-net:
         ipv4_address: 172.42.10.6
@@ -100,6 +121,7 @@ services:
       image: prom/prometheus
       volumes:
       - ./configs/prometheus/:/etc/prometheus/
+      - ./cert-store:/certs 
       #- prometheus_data:/var/lib/prometheus
       restart: always
       links:
@@ -157,14 +179,35 @@ services:
 ## Clients
   ubuntu-ssh:
     image: wilton/ubuntu-ssh
+    hostname: ubuntu-ssh
     container_name: ubuntu-ssh
+    volumes:
+      - ./cert-store:/certs 
     ports:
       - "22:22"
     networks:
       vault-net:
         ipv4_address: 172.42.10.50  
 
+  ca-certificates:
+    hostname: ca-certificates
+    container_name: ca-certificates
+    image: wilton/server-ca:latest
+    restart: 'no'
+    environment:
+      - CA_EXPIRE=365
+      - SSL_EXPIRE=365
+      - SSL_KEY=server-key.pem
+      - SSL_CERT=server-cert.pem
+      - SSL_CSR=server.csr
+      - SSL_SUBJECT=vault.server
+    volumes:
+      - ./cert-store:/certs         
+    networks:
+      vault-net:
+        ipv4_address: 172.42.10.60
 
-#volumes:
+volumes:
+     cert-store:
 #    prometheus_data:
 #    grafana_data:    
