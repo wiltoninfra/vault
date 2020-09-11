@@ -1,1 +1,2 @@
 .env
+vault-cluster/cert-store/*
